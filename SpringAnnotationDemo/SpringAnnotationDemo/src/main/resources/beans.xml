@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--自动扫描包-->
+    <!--<context:component-scan base-package="com.vectorx.springannotation"></context:component-scan>-->
+    <!--<context:component-scan base-package="com.vectorx.springannotation">-->
+    <!--    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>-->
+    <!--    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>-->
+    <!--</context:component-scan>-->
+    <context:component-scan base-package="com.vectorx.springannotation" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+    </context:component-scan>
+
+    <!--注入 bean -->
+    <bean id="person" class="com.vectorx.springannotation.entity.Person">
+        <property name="name" value="zhangsan"></property>
+        <property name="age" value="18"></property>
+    </bean>
+</beans>

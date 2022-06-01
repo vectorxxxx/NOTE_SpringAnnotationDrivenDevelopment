@@ -222,6 +222,8 @@ org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying
 
 ## 3、@ComponentScan 注解
 
+`@ComponentScan` 注解可以指定要扫描的包，与配置文件中 `<context:component-scan>` 标签作用一致
+
 **xml 方式**
 
 ```xml
@@ -325,7 +327,7 @@ person
 
 ### includeFilters
 
-#### 错误示范
+**》》》错误示范**
 
 **xml 方式**
 
@@ -369,7 +371,7 @@ person
 >
 > **A**：因为还有一个 `use-default-filters` 属性要搭配 `include-filter` 属性进行使用。因为 `use-default-filters` 默认的过滤策略为 `true`，即不做任何过滤，所以只使用 `include-filter` 是没有任何效果的
 
-#### 正确示范
+**》》》正确示范**
 
 **xml 方式**
 
@@ -412,7 +414,7 @@ person
 
 > **Q**：Spring IOC 自己的组件没有被过滤：毕竟是 IOC 容器中基础的、必要的组件，不被过滤能够理解；SpringConfig 配置类也没有被过滤：配置类不会被过滤掉也能理解，过滤掉还得了？person 也没有被过滤掉，这是为什么呢？
 >
-> **A**：因为自动扫描包只会扫描 `@Controller`、`@Service`、`@Repository`、`@Component`。这个从 *2、@Bean 注解* 一节中就能够想到（那时还没有使用包扫描照样能获取到 bean 对象），~~笨！~~
+> **A**：因为自动扫描包只会扫描 `@Controller`、`@Service`、`@Repository`、`@Component`。这个从 *2、@Bean 注解* 一节中就能够想到（那时还没有使用包扫描照样能获取到 bean 对象）
 
 ### @ComponentScans
 
@@ -435,8 +437,6 @@ public @interface ComponentScan {...}
 @ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
     @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Service.class})
 })
-@Configuration
-public class SrpingConfig {...}
 ```
 
 不过这个是 jdk8 之后才支持的写法，如果是之前的版本，可以使用 `@ComponentScans` 注解可以达到同样的效果
@@ -451,4 +451,234 @@ public class SrpingConfig {...}
     })
 })
 ```
+
+### FilterType
+
+上面的例子中，我们学习了对扫描包通过排除或包含的方式进行了过滤
+
+- `excludeFilters=Filter[]`：指定扫描的时候排除哪些组件
+- `includeFilters=Filter[]`：指定扫描的时候包含哪些组件
+
+同时我们使用了 `FilterType.ANNOTATION` 即按照注解的方式对扫描的包进行了过滤。这里简单介绍下每种过滤方式
+
+- `FilterType.ANNOTATION`：按照注解过滤
+- `FilterType.ASSIGNABLE_TYPE`：按照指定类型过滤
+- `FilterType.ASPECTJ`：使用 ASPECTJ 表达式过滤
+- `FilterType.REGEX`：使用正则过滤
+- `FilterType.CUSTOM`：使用自定义规则过滤
+
+其中 `FilterType.ANNOTATION` 和 `FilterType.ASSIGNABLE_TYPE` 最常用到，而对于 `FilterType.ASPECTJ` 和 `FilterType.REGEX` 稍作了解即可。因为我们已经使用过 `FilterType.ANNOTATION` 了，所以这里着重学习下 `FilterType.ASSIGNABLE_TYPE`（按照类型过滤）和 `FilterType.CUSTOM`（自定义规则）这两种过滤类型
+
+#### 按照类型过滤
+
+```java
+@ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
+    @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {BookService.class})
+})
+```
+
+测试结果
+
+```java
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalRequiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.context.event.internalEventListenerFactory
+srpingConfig
+bookService
+person
+```
+
+#### 自定义规则
+
+自定义规则比较特殊，需要我们自定义实现类。如何自定义实现类呢？我们先看下 `FilterType` 的官方源码注释是如何说明的
+
+```java
+public enum FilterType {
+    ANNOTATION,
+    ASSIGNABLE_TYPE,
+    ASPECTJ,
+    REGEX,
+    /** Filter candidates using a given custom
+	 * {@link org.springframework.core.type.filter.TypeFilter} implementation.
+	 */
+    CUSTOM
+}
+```
+
+注释告诉我们说需要对 `TypeFilter` 进行实现，话不多说直接上代码
+
+- 定义一个 `MyTypeFilter` 实现 `TypeFilter`
+
+```java
+public class MyTypeFilter implements TypeFilter
+{
+    @Override
+    public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
+            throws IOException {
+        return false;
+    }
+}
+```
+
+- 注解中使用我们刚刚定义好的自定义规则类
+
+```java
+@ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
+    @ComponentScan.Filter(type = FilterType.CUSTOM, classes = {MyTypeFilter.class})
+})
+```
+
+先测试一波，看看效果
+
+```java
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalRequiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.context.event.internalEventListenerFactory
+srpingConfig
+person
+```
+
+可以看到，默认的自定义实现（即 `return false`）时，包下所有类全部会过滤掉。接下来我们把注意力着重放在 *自定义规则方法* 上，该如何实现呢？
+
+不知道如何实现没关系，先看下 `TypeFilter` 接口的源码注释
+
+```java
+public interface TypeFilter {
+
+	/**
+	 * Determine whether this filter matches for the class described by
+	 * the given metadata.
+	 * @param metadataReader the metadata reader for the target class
+	 * @param metadataReaderFactory a factory for obtaining metadata readers
+	 * for other classes (such as superclasses and interfaces)
+	 * @return whether this filter matches
+	 * @throws IOException in case of I/O failure when reading metadata
+	 */
+	boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
+			throws IOException;
+
+}
+```
+
+主要看这两句话，说明了 `metadataReader` 和 `metadataReaderFactory` 两个参数的作用
+
+```java
+@param metadataReader the metadata reader for the target class
+@param metadataReaderFactory a factory for obtaining metadata readers for other classes (such as superclasses and interfaces)
+```
+
+翻译过来就是
+
+- `metadataReader`：目标类的元数据读取器
+- `metadataReaderFactory`：为其他类（如超类和接口）获取元数据读取器的工厂
+
+如何理解呢？
+
+- `metadataReader`：读取器，可以获取当前正在扫描的类的信息
+- `metadataReaderFactory`：读取器的工厂，可以获取其他类的信息
+
+既然如此，我们就先来着重看下 `metadataReader` 中能获取到哪些相关信息
+
+```java
+public class MyTypeFilter implements TypeFilter
+{
+    @Override
+    public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
+            throws IOException {
+        // 获取当前正在扫描的类的注解信息
+        AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+        // 获取当前正在扫描的类的信息
+        ClassMetadata classMetadata = metadataReader.getClassMetadata();
+        // 获取当前正在扫描的类的资源信息（如类的路径）
+        Resource resource = metadataReader.getResource();
+
+        // 主要看下当前类的相关信息
+        String className = classMetadata.getClassName();
+        System.out.println(className);
+        return false;
+    }
+}
+```
+
+测试结果
+
+```java
+com.vectorx.springannotation.SpringAnnotationTest
+com.vectorx.springannotation.controller.BookController
+com.vectorx.springannotation.dao.BookDao
+com.vectorx.springannotation.entity.Person
+com.vectorx.springannotation.filter.MyTypeFilter
+com.vectorx.springannotation.service.BookService
+```
+
+到这里是不是就一目了然了，既然 `return false` 是会被过滤掉的，那只要符合自定义规则时 `return true` 不就可以了嘛
+
+```java
+public class MyTypeFilter implements TypeFilter
+{
+    @Override
+    public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
+            throws IOException {
+        String className = classMetadata.getClassName();
+        if (className.contains("er")) {
+            return true;
+        }
+        return false;
+    }
+}
+```
+
+测试结果
+
+```java
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalRequiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.context.event.internalEventListenerFactory
+srpingConfig
+bookController
+person
+myTypeFilter
+bookService
+```
+
+可以看到 `bookController`、`myTypeFilter`、`bookService` 包含 `er` 所以这几个都被打印了出来，而 `bookDao` 不满足条件所以没被打印 
+
+> **注意**：`TypeFilter` 实现类中并不是说，“返回 `false` 就会被排除，返回 `true` 就会被包含”（并非如此）
+>
+> 只是因为我们使用了 `includeFilters` 属性，所以返回 `true` 的类都会作为 `includeFilters` 属性的值
+>
+> 因此，如果我们使用 `excludeFilters` 属性，结果则会刚好相反
+
+使用 `excludeFilters` 属性自定义规则
+
+```java
+@ComponentScan(value = "com.vectorx.springannotation", excludeFilters = {
+    @ComponentScan.Filter(type = FilterType.CUSTOM, classes = {MyTypeFilter.class})
+})
+```
+
+测试结果
+
+```java
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalRequiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.context.event.internalEventListenerFactory
+srpingConfig
+bookDao
+person
+```
+
+可以看到， `bookController`、`myTypeFilter`、`bookService` 包含 `er` 所以这几个都被过滤了，而 `bookDao` 不满足条件所以被打印出来了
 

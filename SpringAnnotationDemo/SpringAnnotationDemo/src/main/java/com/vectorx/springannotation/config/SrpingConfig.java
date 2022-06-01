@@ -1,11 +1,11 @@
 package com.vectorx.springannotation.config;
 
-import com.vectorx.springannotation.controller.BookController;
 import com.vectorx.springannotation.entity.Person;
-import com.vectorx.springannotation.service.BookService;
-import org.springframework.context.annotation.*;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
+import com.vectorx.springannotation.filter.MyTypeFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 
 /**
  * 配置类
@@ -19,19 +19,32 @@ import org.springframework.stereotype.Service;
 //@ComponentScan(value = "com.vectorx.springannotation", excludeFilters = {
 //        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
 //})
+//=====================================================
 //@ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
 //        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class})
 //})
 //@ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
 //        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Service.class})
 //})
-@ComponentScans(value = {
-    @ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
-        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class})
-    }),
-    @ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
-        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Service.class})
-    })
+//=====================================================
+//@ComponentScans(value = {
+//    @ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
+//        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class})
+//    }),
+//    @ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
+//        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Service.class})
+//    })
+//})
+//=====================================================
+//@ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
+//    @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {BookService.class})
+//})
+//=====================================================
+//@ComponentScan(value = "com.vectorx.springannotation", useDefaultFilters = false, includeFilters = {
+//    @ComponentScan.Filter(type = FilterType.CUSTOM, classes = {MyTypeFilter.class})
+//})
+@ComponentScan(value = "com.vectorx.springannotation", excludeFilters = {
+    @ComponentScan.Filter(type = FilterType.CUSTOM, classes = {MyTypeFilter.class})
 })
 // 标识为一个配置类
 @Configuration

@@ -45,4 +45,8 @@ public class SpringAnnotationTest
             System.out.println(name);
         }
     }
+
+    @Test
+    public void testEmptyMethod(){
+    }
 }

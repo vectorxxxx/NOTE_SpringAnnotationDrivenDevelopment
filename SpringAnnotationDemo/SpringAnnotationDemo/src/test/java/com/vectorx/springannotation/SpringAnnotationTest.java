@@ -1,6 +1,6 @@
 package com.vectorx.springannotation;
 
-import com.vectorx.springannotation.config.SrpingConfig;
+import com.vectorx.springannotation.config.SpringConfig;
 import com.vectorx.springannotation.entity.Person;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,8 +19,8 @@ public class SpringAnnotationTest
     private ApplicationContext context;
 
     @Before
-    public void initContext(){
-        context = new AnnotationConfigApplicationContext(SrpingConfig.class);
+    public void initContext() {
+        context = new AnnotationConfigApplicationContext(SpringConfig.class);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class SpringAnnotationTest
     }
 
     @Test
-    public void testComponentScan(){
+    public void testComponentScan() {
         String[] names = context.getBeanDefinitionNames();
         for (String name : names) {
             System.out.println(name);
@@ -47,6 +47,6 @@ public class SpringAnnotationTest
     }
 
     @Test
-    public void testEmptyMethod(){
+    public void testEmptyMethod() {
     }
 }

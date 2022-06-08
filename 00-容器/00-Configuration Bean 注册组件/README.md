@@ -104,7 +104,7 @@ public class Person
 }
 ```
 
-### 
+
 
 ## 2、@Bean 注解
 
@@ -122,7 +122,7 @@ public class Person
 ```java
 // 标识为一个配置类
 @Configuration
-public class SrpingConfig
+public class SpringConfig
 {
 	/**
      * 相当于 beans.xml 配置文件的 <bean> 标签，可以进行类和属性的注入
@@ -149,7 +149,7 @@ public class SpringAnnotationTest
 
     @Before
     public void initContext(){
-        context = new AnnotationConfigApplicationContext(SrpingConfig.class);
+        context = new AnnotationConfigApplicationContext(SpringConfig.class);
     }
 
     @Test
@@ -189,7 +189,7 @@ person
 
 ```java
 @Configuration
-public class SrpingConfig
+public class SpringConfig
 {
     @Bean(value = "person")
     public Person person01(){
@@ -236,7 +236,7 @@ org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying
 // 自动扫描包
 @ComponentScan(value = "com.vectorx.springannotation")
 @Configuration
-public class SrpingConfig
+public class SpringConfig
 {
     //...
 }
@@ -276,7 +276,7 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 bookController
 bookDao
 bookService
@@ -303,7 +303,7 @@ person
         @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
 })
 @Configuration
-public class SrpingConfig
+public class SpringConfig
 {
     //...
 }
@@ -318,7 +318,7 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 bookDao
 person
 ```
@@ -345,7 +345,7 @@ person
         @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
 })
 @Configuration
-public class SrpingConfig
+public class SpringConfig
 {
     //...
 }
@@ -360,7 +360,7 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 bookController
 bookDao
 bookService
@@ -389,7 +389,7 @@ person
     @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
 })
 @Configuration
-public class SrpingConfig
+public class SpringConfig
 {
     //...
 }
@@ -404,7 +404,7 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 bookController
 bookService
 person
@@ -486,7 +486,7 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 bookService
 person
 ```
@@ -540,7 +540,7 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 person
 ```
 
@@ -643,7 +643,7 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 bookController
 person
 myTypeFilter
@@ -675,10 +675,596 @@ org.springframework.context.annotation.internalRequiredAnnotationProcessor
 org.springframework.context.annotation.internalCommonAnnotationProcessor
 org.springframework.context.event.internalEventListenerProcessor
 org.springframework.context.event.internalEventListenerFactory
-srpingConfig
+springConfig
 bookDao
 person
 ```
 
 可以看到， `bookController`、`myTypeFilter`、`bookService` 包含 `er` 所以这几个都被过滤了，而 `bookDao` 不满足条件所以被打印出来了
 
+
+
+## 4、@Scope 注解
+
+**测试**
+
+配置类
+
+```java
+@Configuration
+public class SpringConfig2
+{
+    @Bean("person")
+    public Person person(){
+        return new Person("lisi", 25);
+    }
+}
+```
+
+测试类
+
+```java
+public class SpringAnnotationTest2
+{
+    private ApplicationContext context;
+
+    @Before
+    public void initContext(){
+        context = new AnnotationConfigApplicationContext(SpringConfig2.class);
+    }
+
+    @Test
+    public void testBean() {
+        Person person1 = context.getBean("person", Person.class);
+        Person person2 = context.getBean("person", Person.class);
+        System.out.println(person1 == person2); 
+    }
+}
+```
+
+测试结果
+
+```java
+true
+```
+
+如果添加 `@Scope` 注解
+
+```java
+@Configuration
+public class SpringConfig2
+{
+    @Scope
+    @Bean("person")
+    public Person person(){
+        return new Person("lisi", 25);
+    }
+}
+```
+
+测试结果
+
+```java
+true
+```
+
+如果为 `@Scope` 注解指定 `SCOPE_SINGLETON` 的属性值
+
+```java
+@Configuration
+public class SpringConfig2
+{
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+    //@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    //@Scope(scopeName = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    @Bean("person")
+    public Person person(){
+        return new Person("lisi", 25);
+    }
+}
+```
+
+测试结果
+
+```java
+true
+```
+
+可以发现，默认情况下，以下三种情况是等价的
+
+- 不加 `@Scope` 注解
+- 加上 `@Scope` 注解但不添加任何属性
+- 加上 `@Scope` 注解并添加 `value` 或 `scopeName` 属性，值为 `SCOPE_SINGLETON`
+
+我们看下 `@Scope` 注解源码，其中重点关注 `scopeName` 上的注释
+
+```java
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Scope {
+    @AliasFor("scopeName")
+    String value() default "";
+
+    /**
+	 * Specifies the name of the scope to use for the annotated component/bean.
+	 * <p>Defaults to an empty string ({@code ""}) which implies
+	 * {@link ConfigurableBeanFactory#SCOPE_SINGLETON SCOPE_SINGLETON}.
+	 * @since 4.2
+	 * @see ConfigurableBeanFactory#SCOPE_PROTOTYPE
+	 * @see ConfigurableBeanFactory#SCOPE_SINGLETON
+	 * @see org.springframework.web.context.WebApplicationContext#SCOPE_REQUEST
+	 * @see org.springframework.web.context.WebApplicationContext#SCOPE_SESSION
+	 * @see #value
+	 */
+    @AliasFor("value")
+    String scopeName() default "";
+
+    ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;
+}
+```
+
+其中说明了 `value` 或 `scopeName` 默认值 `""`，实际上就是 `SCOPE_SINGLETON`。并且可以看到我们可以为其指定四种值
+
+- `ConfigurableBeanFactory#SCOPE_PROTOTYPE`
+- `ConfigurableBeanFactory#SCOPE_SINGLETON`
+- `org.springframework.web.context.WebApplicationContext#SCOPE_REQUEST`
+- `org.springframework.web.context.WebApplicationContext#SCOPE_SESSION`
+
+而这些值其实就是对应类中的常量值
+
+- `prototype`：多实例的。IOC 容器启动并不会去调用方法创建对象放在容器中，每次获取时才会调用方法创建对象
+
+- `singleton`：单实例的（默认值）。IOC 容器启动会调用方法创建对象放到 IOC 容器中。以后每次获取就是直接从容器（`map.get()`）中拿，
+- `request`：同一次请求创建一个实例
+- `session`：同一个 session 创建一个实刷
+
+这与我们使用 xml 方式在 `beans.xml` 配置文件中配置 `scope` 属性是一致的
+
+```xml
+<bean id="person" class="com.vectorx.springannotation.entity.Person" scope="singleton">
+    <property name="name" value="lisi"></property>
+    <property name="age" value="25"></property>
+</bean>
+```
+
+如果我们使用 `prototype` 即多实例范围
+
+```java
+@Configuration
+public class SpringConfig2
+{
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    @Bean("person")
+    public Person person(){
+        return new Person("lisi", 25);
+    }
+}
+```
+
+测试结果
+
+```java
+false
+```
+
+那么如何印证下面两句话呢？
+
+- `prototype`：多实例的。IOC 容器启动并不会去调用方法创建对象放在容器中，每次获取时才会调用方法创建对象
+
+- `singleton`：单实例的（默认值）。IOC 容器启动会调用方法创建对象放到 IOC 容器中。以后每次获取就是直接从容器（`map.get()`）中拿，
+
+我们可以分别添加打印语句看下输出的先后情况
+
+**测试 1**
+
+配置类：配置 `singleton` 单实例
+
+```java
+@Configuration
+public class SpringConfig2
+{
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+    @Bean("person")
+    public Person person(){
+        System.out.println("给 IOC 容器中添加 Person ...");
+        return new Person("lisi", 25);
+    }
+}
+```
+
+测试类
+
+```java
+public class SpringAnnotationTest2
+{
+    private ApplicationContext context;
+
+    @Before
+    public void initContext(){
+        context = new AnnotationConfigApplicationContext(SpringConfig2.class);
+        System.out.println("IOC 容器创建完成...");
+    }
+
+    @Test
+    public void testBean() {
+        Person person1 = context.getBean("person", Person.class);
+        Person person2 = context.getBean("person", Person.class);
+        System.out.println(person1 == person2); // true
+    }
+}
+```
+
+测试结果
+
+```java
+给 IOC 容器中添加 Person ...
+IOC 容器创建完成...
+true
+```
+
+**测试 2**
+
+配置类：配置 `prototype` 多实例
+
+```java
+@Configuration
+public class SpringConfig2
+{
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    @Bean("person")
+    public Person person(){
+        System.out.println("给 IOC 容器中添加 Person ...");
+        return new Person("lisi", 25);
+    }
+}
+```
+
+测试类不变
+
+测试结果
+
+```java
+IOC 容器创建完成...
+给 IOC 容器中添加 Person ...
+给 IOC 容器中添加 Person ...
+false
+```
+
+可以明显看到，*单实例* 和 *多实例* 两种情况的创建对象的先后顺序的不同
+
+
+
+## 5、@Lazy 注解
+
+`@Lazy` 注解，顾名思义就是对创建对象的操作进行懒加载，而这个也是针对单实例而言的
+
+> **思考**：为什么是针对单实例而言的，道理很容易理解。多实例每次都是从容器中获取实例时，都是创建新的对象，所以没有什么懒加载可言。而目前我们通过测试发现，单实例默认情况下在 IOC 容器创建之前就创建好实例对象了。如果我们既想要单实例对象又不想在 IOC 容器创建之前创建对象实例，那应该怎么办呢？这时候 `@Lazy` 注解就应用而生了
+
+我们对配置类略作修改，测试类不动
+
+```java
+@Configuration
+public class SpringConfig2
+{
+    @Lazy
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+    @Bean("person")
+    public Person person(){
+        System.out.println("给 IOC 容器中添加 Person ...");
+        return new Person("lisi", 25);
+    }
+}
+```
+
+测试结果
+
+```java
+IOC 容器创建完成...
+给 IOC 容器中添加 Person ...
+true
+```
+
+与之前没有 `@Lazy` 注解时的测试结果对比，效果一目了然
+
+
+
+## 6、@Conditional 注解
+
+`@Conditional` 注解的作用就是：按照一定的条件进行判断，满足条件时才给容器中注册 bean
+
+怎么使用 `@Conditional` 注解呢？还是从阅读源代码出发
+
+### Conditional
+
+```java
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Conditional {
+
+	/**
+	 * All {@link Condition}s that must {@linkplain Condition#matches match}
+	 * in order for the component to be registered.
+	 */
+	Class<? extends Condition>[] value();
+
+}
+```
+
+从源码中可以得知，`@Conditional` 注解可以作用在类或方法上，其值为一个 Class[] 即 Class 类型的数组，而 Class 类型必须是 `Condition` 的子类，那 `Condition` 又是什么呢？继续看源码
+
+### Condition
+
+```java
+public interface Condition {
+
+	/**
+	 * Determine if the condition matches.
+	 * @param context the condition context
+	 * @param metadata metadata of the {@link org.springframework.core.type.AnnotationMetadata class}
+	 * or {@link org.springframework.core.type.MethodMetadata method} being checked.
+	 * @return {@code true} if the condition matches and the component can be registered
+	 * or {@code false} to veto registration.
+	 */
+	boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata);
+
+}
+```
+
+`Condition` 是一个接口，就是说我们需要定义一个类来实现 `Condition` 接口。接口中方法的注释也写得很清楚，`matches` 能够判断条件匹配与否，返回值是一个布尔类型，匹配成功返回 true，否则返回 false。我们着重看 `context` 和 `metadata` 两个方法入参就好了
+
+- `ConditionContext`：条件上下文
+- `AnnotatedTypeMetadata`：注解类型信息
+
+从方法注释中，我们可以获取的信息有限。继续阅读 `ConditionContext` 和 `AnnotatedTypeMetadata` 源码，看看其中到底有何玄机
+
+### ConditionContext
+
+```java
+public interface ConditionContext {
+
+	/**
+	 * Return the {@link BeanDefinitionRegistry} that will hold the bean definition
+	 * should the condition match, or {@code null} if the registry is not available.
+	 */
+	BeanDefinitionRegistry getRegistry();
+
+	/**
+	 * Return the {@link ConfigurableListableBeanFactory} that will hold the bean
+	 * definition should the condition match, or {@code null} if the bean factory
+	 * is not available.
+	 */
+	ConfigurableListableBeanFactory getBeanFactory();
+
+	/**
+	 * Return the {@link Environment} for which the current application is running,
+	 * or {@code null} if no environment is available.
+	 */
+	Environment getEnvironment();
+
+	/**
+	 * Return the {@link ResourceLoader} currently being used, or {@code null} if
+	 * the resource loader cannot be obtained.
+	 */
+	ResourceLoader getResourceLoader();
+
+	/**
+	 * Return the {@link ClassLoader} that should be used to load additional classes,
+	 * or {@code null} if the default classloader should be used.
+	 */
+	ClassLoader getClassLoader();
+
+}
+```
+
+- `getRegistry()`：获取 Bean 定义的注册类
+- `getBeanFactory()`：获取 BeanFactory 工厂类
+- `getEnvironment()`：获取当前正在运行的系统信息类
+- `getResourceLoader()`：获取资源加载器
+- `getClassLoader()`：获取类加载器
+
+### AnnotatedTypeMetadata
+
+```java
+public interface AnnotatedTypeMetadata {
+
+	/**
+	 * Determine whether the underlying element has an annotation or meta-annotation
+	 * of the given type defined.
+	 * <p>If this method returns {@code true}, then
+	 * {@link #getAnnotationAttributes} will return a non-null Map.
+	 * @param annotationName the fully qualified class name of the annotation
+	 * type to look for
+	 * @return whether a matching annotation is defined
+	 */
+	boolean isAnnotated(String annotationName);
+
+	/**
+	 * Retrieve the attributes of the annotation of the given type, if any (i.e. if
+	 * defined on the underlying element, as direct annotation or meta-annotation),
+	 * also taking attribute overrides on composed annotations into account.
+	 * @param annotationName the fully qualified class name of the annotation
+	 * type to look for
+	 * @return a Map of attributes, with the attribute name as key (e.g. "value")
+	 * and the defined attribute value as Map value. This return value will be
+	 * {@code null} if no matching annotation is defined.
+	 */
+	Map<String, Object> getAnnotationAttributes(String annotationName);
+
+	/**
+	 * Retrieve the attributes of the annotation of the given type, if any (i.e. if
+	 * defined on the underlying element, as direct annotation or meta-annotation),
+	 * also taking attribute overrides on composed annotations into account.
+	 * @param annotationName the fully qualified class name of the annotation
+	 * type to look for
+	 * @param classValuesAsString whether to convert class references to String
+	 * class names for exposure as values in the returned Map, instead of Class
+	 * references which might potentially have to be loaded first
+	 * @return a Map of attributes, with the attribute name as key (e.g. "value")
+	 * and the defined attribute value as Map value. This return value will be
+	 * {@code null} if no matching annotation is defined.
+	 */
+	Map<String, Object> getAnnotationAttributes(String annotationName, boolean classValuesAsString);
+
+	/**
+	 * Retrieve all attributes of all annotations of the given type, if any (i.e. if
+	 * defined on the underlying element, as direct annotation or meta-annotation).
+	 * Note that this variant does <i>not</i> take attribute overrides into account.
+	 * @param annotationName the fully qualified class name of the annotation
+	 * type to look for
+	 * @return a MultiMap of attributes, with the attribute name as key (e.g. "value")
+	 * and a list of the defined attribute values as Map value. This return value will
+	 * be {@code null} if no matching annotation is defined.
+	 * @see #getAllAnnotationAttributes(String, boolean)
+	 */
+	MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationName);
+
+	/**
+	 * Retrieve all attributes of all annotations of the given type, if any (i.e. if
+	 * defined on the underlying element, as direct annotation or meta-annotation).
+	 * Note that this variant does <i>not</i> take attribute overrides into account.
+	 * @param annotationName the fully qualified class name of the annotation
+	 * type to look for
+	 * @param classValuesAsString  whether to convert class references to String
+	 * @return a MultiMap of attributes, with the attribute name as key (e.g. "value")
+	 * and a list of the defined attribute values as Map value. This return value will
+	 * be {@code null} if no matching annotation is defined.
+	 * @see #getAllAnnotationAttributes(String)
+	 */
+	MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString);
+
+}
+```
+
+- `isAnnotated`：判断元素上是否定义了指定类型的注解
+- `getAnnotationAttributes`：获取指定类型的注解的属性
+- `getAllAnnotationAttributes`：获取指定类型的所有注解的所有属性
+
+> 通过对源码的阅读，如果我们要实现下列功能就轻而易举了：根据操作系统的不同，注册不同的 Person 类
+
+**WindowsCondition**
+
+```java
+public class WindowsCondition implements Condition
+{
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        Environment environment = context.getEnvironment();
+        // 判断是否是 Windows 系统
+        String osName = environment.getProperty("os.name");
+        return osName.toLowerCase().contains("windows");
+    }
+}
+```
+
+**LinuxCondition**
+
+```java
+public class LinuxCondition implements Condition
+{
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        Environment environment = context.getEnvironment();
+        // 判断是否是 Linux 系统
+        String osName = environment.getProperty("os.name");
+        return osName.toLowerCase().contains("linux");
+    }
+}
+```
+
+**配置类**
+
+```java
+@Configuration
+public class SpringConfig3
+{
+    @Bean("person")
+    public Person person() {
+        return new Person("wangwu", 26);
+    }
+
+    @Conditional({WindowsCondition.class})
+    @Bean("bill")
+    public Person person01() {
+        return new Person("Bill Gates", 67);
+    }
+
+    @Conditional({LinuxCondition.class})
+    @Bean("linus")
+    public Person person02() {
+        return new Person("Linus", 53);
+    }
+}
+```
+
+**测试类**
+
+```java
+public class SpringAnnotationTest3
+{
+    private ApplicationContext context;
+
+    @Before
+    public void initContext() {
+        context = new AnnotationConfigApplicationContext(SpringConfig3.class);
+    }
+
+    @Test
+    public void testBean() {
+        Environment environment = context.getEnvironment();
+        String osName = environment.getProperty("os.name");
+        System.out.println("os.name=" + osName);
+        System.out.println("==============");
+        String[] names = context.getBeanNamesForType(Person.class);
+        for (String name : names) {
+            System.out.println(name);
+        }
+        System.out.println("==============");
+        Map<String, Person> beans = context.getBeansOfType(Person.class);
+        for (Map.Entry<String, Person> entry : beans.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+}
+```
+
+**测试结果**
+
+```java
+os.name=Windows 10
+==============
+person
+bill
+==============
+person: Person{name='wangwu', age='26'}
+bill: Person{name='Bill Gates', age='67'}
+```
+
+添加 VM options
+
+```properties
+-Dos.name=linux
+```
+
+**测试结果**
+
+```java
+os.name=linux
+==============
+person
+linus
+==============
+person: Person{name='wangwu', age='26'}
+linus: Person{name='Linus', age='53'}
+```
+
+
+
+## 总结
+
+本节重点掌握几个注解：@Bean、@ComponentScan、@Scope、@Lazy、@Conditional 的作用和使用
+
+附上导图，仅供参考
+
+![Configuration Bean 注册组件](https://s2.loli.net/2022/06/08/rDRGQnsvqHgheNS.png)

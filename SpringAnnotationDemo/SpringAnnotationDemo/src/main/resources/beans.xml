@@ -16,7 +16,7 @@
     </context:component-scan>
 
     <!--注入 bean -->
-    <bean id="person" class="com.vectorx.springannotation.entity.Person">
+    <bean id="person" class="com.vectorx.springannotation.entity.Person" scope="singleton">
         <property name="name" value="zhangsan"></property>
         <property name="age" value="18"></property>
     </bean>

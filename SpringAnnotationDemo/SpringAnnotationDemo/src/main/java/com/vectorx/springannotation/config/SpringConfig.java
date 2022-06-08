@@ -44,22 +44,22 @@ import org.springframework.context.annotation.FilterType;
 //    @ComponentScan.Filter(type = FilterType.CUSTOM, classes = {MyTypeFilter.class})
 //})
 @ComponentScan(value = "com.vectorx.springannotation", excludeFilters = {
-    @ComponentScan.Filter(type = FilterType.CUSTOM, classes = {MyTypeFilter.class})
-})
+        @ComponentScan.Filter(type = FilterType.CUSTOM, classes = {MyTypeFilter.class})})
 // 标识为一个配置类
 @Configuration
-public class SrpingConfig
+public class SpringConfig
 {
     /**
      * 相当于 bean.xml 配置文件的 <bean> 标签，可以进行类和属性的注入
      * value 指定注册类的 id，不写则默认将方法名作为 bean 的 id
-     * @author vectorx
+     *
      * @param
-     * @throws
      * @return com.vectorx.springannotation.entity.Person
+     * @throws
+     * @author vectorx
      */
     @Bean(value = "person")
-    public Person person01(){
+    public Person person01() {
         return new Person("zhangsan", 18);
     }
 

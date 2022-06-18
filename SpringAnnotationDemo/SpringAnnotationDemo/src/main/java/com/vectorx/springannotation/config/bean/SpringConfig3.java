@@ -1,4 +1,4 @@
-package com.vectorx.springannotation.config;
+package com.vectorx.springannotation.config.bean;
 
 import com.vectorx.springannotation.condition.LinuxCondition;
 import com.vectorx.springannotation.condition.WindowsCondition;

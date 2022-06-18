@@ -1,6 +1,6 @@
-package com.vectorx.springannotation;
+package com.vectorx.springannotation.bean;
 
-import com.vectorx.springannotation.config.SpringConfig3;
+import com.vectorx.springannotation.config.bean.SpringConfig3;
 import com.vectorx.springannotation.entity.Person;
 import org.junit.Before;
 import org.junit.Test;

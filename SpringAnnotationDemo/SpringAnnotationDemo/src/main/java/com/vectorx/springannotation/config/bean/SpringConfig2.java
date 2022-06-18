@@ -1,4 +1,4 @@
-package com.vectorx.springannotation.config;
+package com.vectorx.springannotation.config.bean;
 
 import com.vectorx.springannotation.entity.Person;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -21,7 +21,7 @@ public class SpringConfig2
     @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     //@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Bean("person")
-    public Person person(){
+    public Person person() {
         System.out.println("给 IOC 容器中添加 Person ...");
         return new Person("lisi", 25);
     }

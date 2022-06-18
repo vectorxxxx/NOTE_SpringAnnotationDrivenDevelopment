@@ -35,7 +35,7 @@
 查看 `spring-context-4.3.12.RELEASE.pom` 文件内容，其中引入 Spring 核心依赖 `spring-aop`、`spring-beans`、`spring-core`、`spring-expression`，所以引入 `spring-context` 一个依赖足矣
 
 ```xml
-<dependency>
+	<dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-aop</artifactId>
     <version>4.3.12.RELEASE</version>

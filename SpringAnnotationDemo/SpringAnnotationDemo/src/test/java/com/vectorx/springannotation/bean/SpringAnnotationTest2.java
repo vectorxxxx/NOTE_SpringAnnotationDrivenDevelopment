@@ -1,6 +1,6 @@
-package com.vectorx.springannotation;
+package com.vectorx.springannotation.bean;
 
-import com.vectorx.springannotation.config.SpringConfig2;
+import com.vectorx.springannotation.config.bean.SpringConfig2;
 import com.vectorx.springannotation.entity.Person;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class SpringAnnotationTest2
     private ApplicationContext context;
 
     @Before
-    public void initContext(){
+    public void initContext() {
         context = new AnnotationConfigApplicationContext(SpringConfig2.class);
         System.out.println("IOC 容器创建完成...");
     }
